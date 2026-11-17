@@ -1,0 +1,680 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Sala de Leitura — EE Prof. Dr. Geraldo Campos Moreira</title>
+<style>
+  :root{
+    --azul-escuro:#1f3b57;
+    --azul:#2c5f8a;
+    --azul-claro:#e8f0f7;
+    --cinza:#f4f6f8;
+    --texto:#1c2a36;
+    --verde:#2e7d4f;
+    --vermelho:#b23a3a;
+    --amarelo:#c9a227;
+    --borda:#cfd9e2;
+    --sombra:0 2px 10px rgba(0,0,0,.08);
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;font-family:"Segoe UI",Roboto,Arial,sans-serif;
+    background:var(--cinza);color:var(--texto);
+  }
+  header{
+    background:var(--azul-escuro);color:#fff;padding:14px 22px;
+    display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;
+  }
+  header h1{font-size:1.05rem;margin:0;font-weight:600;letter-spacing:.3px;}
+  header .escola{font-size:.78rem;opacity:.85;display:block;font-weight:400;}
+  #btnSair{display:none;background:transparent;border:1px solid #fff;color:#fff;
+    padding:6px 14px;border-radius:6px;cursor:pointer;font-size:.8rem;}
+  #btnSair:hover{background:rgba(255,255,255,.15);}
+
+  main{max-width:1080px;margin:0 auto;padding:22px 16px 60px;}
+
+  /* LOGIN */
+  .login-wrap{display:flex;justify-content:center;margin-top:60px;}
+  .login-card{
+    background:#fff;padding:32px 28px;border-radius:12px;box-shadow:var(--sombra);
+    width:100%;max-width:380px;border-top:5px solid var(--azul);
+  }
+  .login-card h2{margin:0 0 4px;font-size:1.2rem;color:var(--azul-escuro);}
+  .login-card p.sub{margin:0 0 22px;font-size:.82rem;color:#5d6b78;}
+  label{display:block;font-size:.8rem;font-weight:600;margin:14px 0 6px;color:#33475b;}
+  input,select{
+    width:100%;padding:10px 12px;border:1px solid var(--borda);border-radius:7px;
+    font-size:.9rem;background:#fff;color:var(--texto);
+  }
+  input:focus,select:focus{outline:2px solid var(--azul);outline-offset:1px;}
+  .btn{
+    background:var(--azul);color:#fff;border:none;padding:11px 18px;border-radius:7px;
+    font-size:.88rem;font-weight:600;cursor:pointer;transition:.15s;
+  }
+  .btn:hover{background:var(--azul-escuro);}
+  .btn.sec{background:#e3eaf1;color:var(--azul-escuro);}
+  .btn.sec:hover{background:#d4dee8;}
+  .btn.danger{background:var(--vermelho);}
+  .btn.danger:hover{background:#8f2b2b;}
+  .btn.full{width:100%;margin-top:22px;}
+  .erro{background:#fdecea;color:var(--vermelho);padding:9px 12px;border-radius:7px;
+    font-size:.8rem;margin-top:14px;display:none;border:1px solid #f5c6c2;}
+
+  /* DASHBOARD */
+  #app{display:none;}
+  .tabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:20px;}
+  .tab{
+    background:#fff;border:1px solid var(--borda);padding:9px 16px;border-radius:20px;
+    cursor:pointer;font-size:.83rem;font-weight:600;color:#4a5b6b;
+  }
+  .tab.active{background:var(--azul);color:#fff;border-color:var(--azul);}
+  .cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:14px;margin-bottom:22px;}
+  .card{background:#fff;border-radius:10px;padding:16px 18px;box-shadow:var(--sombra);
+    border-left:4px solid var(--azul);}
+  .card .num{font-size:1.7rem;font-weight:700;color:var(--azul-escuro);line-height:1;}
+  .card .lbl{font-size:.76rem;color:#63748a;margin-top:6px;text-transform:uppercase;letter-spacing:.4px;}
+  .card.verde{border-left-color:var(--verde);}
+  .card.amarelo{border-left-color:var(--amarelo);}
+  .card.vermelho{border-left-color:var(--vermelho);}
+
+  .painel{background:#fff;border-radius:10px;box-shadow:var(--sombra);padding:20px;margin-bottom:22px;}
+  .painel h3{margin:0 0 14px;font-size:1rem;color:var(--azul-escuro);}
+  .linha{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:14px;align-items:center;}
+  .linha input,.linha select{flex:1;min-width:150px;}
+
+  table{width:100%;border-collapse:collapse;font-size:.83rem;}
+  th{background:var(--azul-claro);text-align:left;padding:9px 10px;color:var(--azul-escuro);
+    font-size:.74rem;text-transform:uppercase;letter-spacing:.4px;}
+  td{padding:9px 10px;border-bottom:1px solid #eef2f6;}
+  tr:hover td{background:#fafcfd;}
+  .tag{display:inline-block;padding:3px 9px;border-radius:12px;font-size:.7rem;font-weight:700;}
+  .tag.ativo{background:#e3f3ea;color:var(--verde);}
+  .tag.devolvido{background:#e8eef4;color:#4a5b6b;}
+  .tag.atrasado{background:#fdecea;color:var(--vermelho);}
+  .tag.disp{background:#e3f3ea;color:var(--verde);}
+  .tag.esgotado{background:#fdecea;color:var(--vermelho);}
+
+  .vazio{text-align:center;color:#8092a3;font-size:.85rem;padding:26px 0;}
+  .msg{padding:10px 14px;border-radius:7px;font-size:.82rem;margin-bottom:14px;display:none;}
+  .msg.ok{background:#e3f3ea;color:var(--verde);border:1px solid #bde0cb;}
+  .msg.err{background:#fdecea;color:var(--vermelho);border:1px solid #f5c6c2;}
+  .oculto{display:none!important;}
+  @media(max-width:640px){
+    header h1{font-size:.92rem;}
+    table{font-size:.76rem;}
+    th,td{padding:7px 6px;}
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Sala de Leitura
+    <span class="escola">EE Professor Doutor Geraldo Campos Moreira</span>
+  </h1>
+  <button id="btnSair">Sair</button>
+</header>
+
+<main>
+
+  <!-- ================= LOGIN ================= -->
+  <section id="telaLogin" class="login-wrap">
+    <div class="login-card">
+      <h2>Acesso do Administrador</h2>
+      <p class="sub">Sistema de gestão do acervo, empréstimos e leitores.</p>
+      <label for="user">Usuário</label>
+      <input id="user" type="text" placeholder="admin" autocomplete="username" />
+      <label for="pass">Senha</label>
+      <input id="pass" type="password" placeholder="••••••" autocomplete="current-password" />
+      <button class="btn full" id="btnEntrar">Entrar no sistema</button>
+      <div class="erro" id="erroLogin">Usuário ou senha incorretos.</div>
+    </div>
+  </section>
+
+  <!-- ================= APP ================= -->
+  <section id="app">
+
+    <div class="tabs">
+      <div class="tab active" data-tab="dashboard">Painel</div>
+      <div class="tab" data-tab="livros">Acervo</div>
+      <div class="tab" data-tab="leitores">Leitores</div>
+      <div class="tab" data-tab="emprestimos">Empréstimos</div>
+      <div class="tab" data-tab="relatorios">Relatórios</div>
+    </div>
+
+    <!-- DASHBOARD -->
+    <div id="tab-dashboard" class="aba">
+      <div class="cards">
+        <div class="card"><div class="num" id="kpiLivros">0</div><div class="lbl">Obras no acervo</div></div>
+        <div class="card verde"><div class="num" id="kpiLeitores">0</div><div class="lbl">Leitores cadastrados</div></div>
+        <div class="card amarelo"><div class="num" id="kpiAtivos">0</div><div class="lbl">Empréstimos ativos</div></div>
+        <div class="card vermelho"><div class="num" id="kpiAtrasados">0</div><div class="lbl">Em atraso</div></div>
+      </div>
+      <div class="painel">
+        <h3>Empréstimos em andamento</h3>
+        <div id="dashEmprestimos"></div>
+      </div>
+    </div>
+
+    <!-- LIVROS -->
+    <div id="tab-livros" class="aba oculto">
+      <div class="painel">
+        <h3>Acervo — Ficção e Romance</h3>
+        <div class="msg" id="msgLivro"></div>
+        <div class="linha">
+          <input id="buscaLivro" type="text" placeholder="Buscar por título, autor ou ISBN..." />
+          <select id="filtroGenero">
+            <option value="">Todos os gêneros</option>
+            <option>Ficção</option>
+            <option>Romance</option>
+          </select>
+        </div>
+        <div id="tabelaLivros"></div>
+      </div>
+      <div class="painel">
+        <h3>Cadastrar nova obra</h3>
+        <div class="linha">
+          <input id="livroTitulo" placeholder="Título *" />
+          <input id="livroAutor" placeholder="Autor *" />
+        </div>
+        <div class="linha">
+          <input id="livroIsbn" placeholder="ISBN" />
+          <input id="livroEditora" placeholder="Editora" />
+        </div>
+        <div class="linha">
+          <input id="livroAno" type="number" placeholder="Ano" min="1900" max="2100" />
+          <select id="livroGenero">
+            <option value="Ficção">Ficção</option>
+            <option value="Romance">Romance</option>
+          </select>
+          <input id="livroQtd" type="number" placeholder="Qtd. exemplares *" min="1" value="1" />
+        </div>
+        <button class="btn" id="btnCadLivro">Cadastrar obra</button>
+      </div>
+    </div>
+
+    <!-- LEITORES -->
+    <div id="tab-leitores" class="aba oculto">
+      <div class="painel">
+        <h3>Leitores cadastrados</h3>
+        <div class="msg" id="msgLeitor"></div>
+        <div id="tabelaLeitores"></div>
+      </div>
+      <div class="painel">
+        <h3>Cadastrar leitor</h3>
+        <div class="linha">
+          <input id="leitorNome" placeholder="Nome completo *" />
+          <input id="leitorMatricula" placeholder="Matrícula *" />
+        </div>
+        <div class="linha">
+          <input id="leitorTurma" placeholder="Turma / Cargo" />
+          <input id="leitorEmail" type="email" placeholder="E-mail" />
+        </div>
+        <button class="btn" id="btnCadLeitor">Cadastrar leitor</button>
+      </div>
+    </div>
+
+    <!-- EMPRESTIMOS -->
+    <div id="tab-emprestimos" class="aba oculto">
+      <div class="painel">
+        <h3>Registrar empréstimo</h3>
+        <div class="msg" id="msgEmprestimo"></div>
+        <div class="linha">
+          <select id="empLeitor"></select>
+          <select id="empLivro"></select>
+        </div>
+        <div class="linha">
+          <label style="margin:0;align-self:center;white-space:nowrap;">Devolução prevista:</label>
+          <input id="empData" type="date" style="max-width:200px;" />
+        </div>
+        <button class="btn" id="btnEmprestar">Registrar empréstimo</button>
+      </div>
+      <div class="painel">
+        <h3>Histórico de empréstimos</h3>
+        <div id="tabelaEmprestimos"></div>
+      </div>
+    </div>
+
+    <!-- RELATORIOS -->
+    <div id="tab-relatorios" class="aba oculto">
+      <div class="painel">
+        <h3>Relatórios gerenciais</h3>
+        <div class="linha">
+          <button class="btn sec" id="btnRelAtrasados">Alunos com empréstimos em atraso</button>
+          <button class="btn sec" id="btnRelPopulares">Obras mais emprestadas</button>
+        </div>
+        <div id="saidaRelatorio"></div>
+      </div>
+    </div>
+
+  </section>
+</main>
+
+<script>
+/* ============================================================
+   PROTÓTIPO SALA DE LEITURA — persistência via localStorage
+   Login: admin | Senha: EE2027
+   ============================================================ */
+
+const CHAVE = 'salaLeituraDB_v1';
+const CREDENCIAIS = { usuario: 'admin', senha: 'EE2027' };
+
+/* ---------- SEED (equivale ao INSERT do arquivo .sql) ---------- */
+const SEED = {
+  livros: [
+    {id:1,  titulo:'Dom Casmurro',                          autor:'Machado de Assis',          isbn:'9788535910663', editora:'Companhia das Letras', ano:1899, genero:'Romance', qtd:3, disponivel:3},
+    {id:2,  titulo:'Memórias Póstumas de Brás Cubas',       autor:'Machado de Assis',          isbn:'9788535910670', editora:'Companhia das Letras', ano:1881, genero:'Romance', qtd:2, disponivel:2},
+    {id:3,  titulo:'Grande Sertão: Veredas',                autor:'João Guimarães Rosa',       isbn:'9788520925152', editora:'Nova Fronteira',       ano:1956, genero:'Romance', qtd:2, disponivel:2},
+    {id:4,  titulo:'A Hora da Estrela',                     autor:'Clarice Lispector',         isbn:'9788520937056', editora:'Rocco',                ano:1977, genero:'Romance', qtd:3, disponivel:3},
+    {id:5,  titulo:'Capitães da Areia',                     autor:'Jorge Amado',               isbn:'9788535911738', editora:'Companhia das Letras', ano:1937, genero:'Romance', qtd:2, disponivel:2},
+    {id:6,  titulo:'Vidas Secas',                           autor:'Graciliano Ramos',          isbn:'9788503012053', editora:'Record',               ano:1938, genero:'Romance', qtd:4, disponivel:4},
+    {id:7,  titulo:'O Cortiço',                             autor:'Aluísio Azevedo',           isbn:'9788535910083', editora:'Companhia das Letras', ano:1890, genero:'Romance', qtd:2, disponivel:2},
+    {id:8,  titulo:'Iracema',                               autor:'José de Alencar',           isbn:'9788535910564', editora:'Companhia das Letras', ano:1865, genero:'Romance', qtd:2, disponivel:2},
+    {id:9,  titulo:'Senhora',                               autor:'José de Alencar',           isbn:'9788535910571', editora:'Companhia das Letras', ano:1875, genero:'Romance', qtd:1, disponivel:1},
+    {id:10, titulo:'Quincas Borba',                         autor:'Machado de Assis',          isbn:'9788535910687', editora:'Companhia das Letras', ano:1891, genero:'Romance', qtd:2, disponivel:2},
+    {id:11, titulo:'A Moreninha',                           autor:'Joaquim Manuel de Macedo',  isbn:'9788508123457', editora:'Ática',                ano:1844, genero:'Romance', qtd:1, disponivel:1},
+    {id:12, titulo:'O Guarani',                             autor:'José de Alencar',           isbn:'9788535910588', editora:'Companhia das Letras', ano:1857, genero:'Romance', qtd:2, disponivel:2},
+    {id:13, titulo:'1984',                                  autor:'George Orwell',             isbn:'9788535914849', editora:'Companhia das Letras', ano:1949, genero:'Ficção',  qtd:4, disponivel:4},
+    {id:14, titulo:'A Revolução dos Bichos',                autor:'George Orwell',             isbn:'9788535909555', editora:'Companhia das Letras', ano:1945, genero:'Ficção',  qtd:3, disponivel:3},
+    {id:15, titulo:'Admirável Mundo Novo',                  autor:'Aldous Huxley',             isbn:'9788525055779', editora:'Globo',                ano:1932, genero:'Ficção',  qtd:2, disponivel:2},
+    {id:16, titulo:'Fahrenheit 451',                        autor:'Ray Bradbury',              isbn:'9788525055854', editora:'Globo',                ano:1953, genero:'Ficção',  qtd:3, disponivel:3},
+    {id:17, titulo:'O Senhor dos Anéis: A Sociedade do Anel',autor:'J. R. R. Tolkien',         isbn:'9788595084742', editora:'HarperCollins',        ano:1954, genero:'Ficção',  qtd:3, disponivel:3},
+    {id:18, titulo:'O Hobbit',                              autor:'J. R. R. Tolkien',          isbn:'9788595084759', editora:'HarperCollins',        ano:1937, genero:'Ficção',  qtd:4, disponivel:4},
+    {id:19, titulo:'Harry Potter e a Pedra Filosofal',      autor:'J. K. Rowling',             isbn:'9788532530789', editora:'Rocco',                ano:1997, genero:'Ficção',  qtd:5, disponivel:5},
+    {id:20, titulo:'O Pequeno Príncipe',                    autor:'Antoine de Saint-Exupéry',  isbn:'9788595081512', editora:'HarperCollins',        ano:1943, genero:'Ficção',  qtd:4, disponivel:4},
+    {id:21, titulo:'A Menina que Roubava Livros',           autor:'Markus Zusak',              isbn:'9788598078021', editora:'Intrínseca',           ano:2005, genero:'Ficção',  qtd:3, disponivel:3},
+    {id:22, titulo:'O Diário de Anne Frank',               autor:'Anne Frank',                isbn:'9788501400227', editora:'Record',               ano:1947, genero:'Ficção',  qtd:2, disponivel:2},
+    {id:23, titulo:'A Culpa é das Estrelas',                autor:'John Green',                isbn:'9788580573466', editora:'Intrínseca',           ano:2012, genero:'Romance', qtd:3, disponivel:3},
+    {id:24, titulo:'Orgulho e Preconceito',                 autor:'Jane Austen',               isbn:'9788544001802', editora:'Martin Claret',        ano:1813, genero:'Romance', qtd:2, disponivel:2}
+  ],
+  leitores: [
+    {id:1, nome:'Ana Beatriz Souza',   matricula:'2026001', turma:'3º Ano C', email:'ana.souza@aluno.sp.gov.br'},
+    {id:2, nome:'Bruno Henrique Lima', matricula:'2026002', turma:'3º Ano C', email:'bruno.lima@aluno.sp.gov.br'},
+    {id:3, nome:'Carla Mendes Rocha',  matricula:'2026003', turma:'2º Ano A', email:'carla.rocha@aluno.sp.gov.br'},
+    {id:4, nome:'Diego Ferreira Alves',matricula:'2026004', turma:'1º Ano B', email:'diego.alves@aluno.sp.gov.br'}
+  ],
+  emprestimos: [],
+  seqLivro: 25,
+  seqLeitor: 5,
+  seqEmp: 1
+};
+
+/* ---------- CAMADA DE PERSISTÊNCIA ---------- */
+function carregar(){
+  const raw = localStorage.getItem(CHAVE);
+  if(!raw){ salvar(SEED); return JSON.parse(JSON.stringify(SEED)); }
+  try { return JSON.parse(raw); } catch(e){ salvar(SEED); return JSON.parse(JSON.stringify(SEED)); }
+}
+function salvar(db){ localStorage.setItem(CHAVE, JSON.stringify(db)); }
+let DB = carregar();
+
+/* ---------- UTILITÁRIOS ---------- */
+const $ = id => document.getElementById(id);
+const hoje = () => new Date().toISOString().slice(0,10);
+const fmt = d => d ? d.split('-').reverse().join('/') : '—';
+function statusEmp(e){
+  if(e.status === 'devolvido') return 'devolvido';
+  if(e.dataPrevista && e.dataPrevista < hoje()) return 'atrasado';
+  return 'ativo';
+}
+function toast(el, texto, tipo){
+  el.textContent = texto;
+  el.className = 'msg ' + tipo;
+  el.style.display = 'block';
+  setTimeout(()=>{ el.style.display='none'; }, 3500);
+}
+function esc(s){
+  return String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
+/* ============================================================
+   LOGIN
+   ============================================================ */
+$('btnEntrar').addEventListener('click', entrar);
+$('pass').addEventListener('keydown', e => { if(e.key === 'Enter') entrar(); });
+$('user').addEventListener('keydown', e => { if(e.key === 'Enter') $('pass').focus(); });
+
+function entrar(){
+  const u = $('user').value.trim();
+  const p = $('pass').value;
+  if(u === CREDENCIAIS.usuario && p === CREDENCIAIS.senha){
+    $('telaLogin').style.display = 'none';
+    $('app').style.display = 'block';
+    $('btnSair').style.display = 'inline-block';
+    $('erroLogin').style.display = 'none';
+    $('pass').value = '';
+    renderTudo();
+  } else {
+    $('erroLogin').style.display = 'block';
+  }
+}
+$('btnSair').addEventListener('click', ()=>{
+  $('app').style.display = 'none';
+  $('telaLogin').style.display = 'flex';
+  $('btnSair').style.display = 'none';
+  $('user').value = ''; $('pass').value = '';
+});
+
+/* ============================================================
+   NAVEGAÇÃO POR ABAS
+   ============================================================ */
+document.querySelectorAll('.tab').forEach(t => {
+  t.addEventListener('click', () => {
+    document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));
+    t.classList.add('active');
+    document.querySelectorAll('.aba').forEach(a=>a.classList.add('oculto'));
+    $('tab-' + t.dataset.tab).classList.remove('oculto');
+    if(t.dataset.tab === 'relatorios') $('saidaRelatorio').innerHTML = '';
+  });
+});
+
+/* ============================================================
+   RENDERIZAÇÃO GERAL
+   ============================================================ */
+function renderTudo(){
+  renderDashboard();
+  renderLivros();
+  renderLeitores();
+  renderEmprestimos();
+  preencherSelects();
+}
+
+/* ---------- DASHBOARD ---------- */
+function renderDashboard(){
+  $('kpiLivros').textContent = DB.livros.length;
+  $('kpiLeitores').textContent = DB.leitores.length;
+  const ativos = DB.emprestimos.filter(e => statusEmp(e) === 'ativo').length;
+  const atrasados = DB.emprestimos.filter(e => statusEmp(e) === 'atrasado').length;
+  $('kpiAtivos').textContent = ativos;
+  $('kpiAtrasados').textContent = atrasados;
+
+  const abertos = DB.emprestimos.filter(e => e.status !== 'devolvido');
+  if(!abertos.length){
+    $('dashEmprestimos').innerHTML = '<div class="vazio">Nenhum empréstimo em andamento.</div>';
+    return;
+  }
+  let html = '<table><thead><tr><th>Leitor</th><th>Obra</th><th>Retirada</th><th>Prevista</th><th>Status</th></tr></thead><tbody>';
+  abertos.forEach(e=>{
+    const st = statusEmp(e);
+    const l = DB.leitores.find(x=>x.id===e.leitorId);
+    const o = DB.livros.find(x=>x.id===e.livroId);
+    html += `<tr>
+      <td>${esc(l?.nome || '—')}</td>
+      <td>${esc(o?.titulo || '—')}</td>
+      <td>${fmt(e.dataRetirada)}</td>
+      <td>${fmt(e.dataPrevista)}</td>
+      <td><span class="tag ${st}">${st}</span></td>
+    </tr>`;
+  });
+  html += '</tbody></table>';
+  $('dashEmprestimos').innerHTML = html;
+}
+
+/* ---------- LIVROS ---------- */
+function renderLivros(){
+  const termo = ($('buscaLivro').value || '').toLowerCase().trim();
+  const gen = $('filtroGenero').value;
+  let lista = DB.livros.filter(l=>{
+    const okTermo = !termo ||
+      l.titulo.toLowerCase().includes(termo) ||
+      l.autor.toLowerCase().includes(termo) ||
+      (l.isbn||'').includes(termo);
+    const okGen = !gen || l.genero === gen;
+    return okTermo && okGen;
+  });
+  if(!lista.length){
+    $('tabelaLivros').innerHTML = '<div class="vazio">Nenhuma obra encontrada.</div>';
+    return;
+  }
+  let html = '<table><thead><tr><th>#</th><th>Título</th><th>Autor</th><th>Gênero</th><th>Editora</th><th>Ano</th><th>Disp./Total</th><th>Ação</th></tr></thead><tbody>';
+  lista.forEach(l=>{
+    const cls = l.disponivel > 0 ? 'disp' : 'esgotado';
+    html += `<tr>
+      <td>${l.id}</td>
+      <td><strong>${esc(l.titulo)}</strong></td>
+      <td>${esc(l.autor)}</td>
+      <td>${esc(l.genero)}</td>
+      <td>${esc(l.editora||'—')}</td>
+      <td>${l.ano||'—'}</td>
+      <td><span class="tag ${cls}">${l.disponivel}/${l.qtd}</span></td>
+      <td><button class="btn danger" style="padding:5px 10px;font-size:.72rem;" onclick="excluirLivro(${l.id})">Excluir</button></td>
+    </tr>`;
+  });
+  html += '</tbody></table>';
+  $('tabelaLivros').innerHTML = html;
+}
+$('buscaLivro').addEventListener('input', renderLivros);
+$('filtroGenero').addEventListener('change', renderLivros);
+
+$('btnCadLivro').addEventListener('click', ()=>{
+  const titulo = $('livroTitulo').value.trim();
+  const autor = $('livroAutor').value.trim();
+  const qtd = parseInt($('livroQtd').value, 10);
+  if(!titulo || !autor || !qtd || qtd < 1){
+    toast($('msgLivro'), 'Preencha título, autor e quantidade (mínimo 1).', 'err');
+    return;
+  }
+  DB.livros.push({
+    id: DB.seqLivro++,
+    titulo, autor,
+    isbn: $('livroIsbn').value.trim(),
+    editora: $('livroEditora').value.trim(),
+    ano: parseInt($('livroAno').value, 10) || null,
+    genero: $('livroGenero').value,
+    qtd, disponivel: qtd
+  });
+  salvar(DB);
+  ['livroTitulo','livroAutor','livroIsbn','livroEditora','livroAno'].forEach(id=>$(id).value='');
+  $('livroQtd').value = 1;
+  toast($('msgLivro'), 'Obra cadastrada com sucesso.', 'ok');
+  renderLivros(); renderDashboard(); preencherSelects();
+});
+
+function excluirLivro(id){
+  const emUso = DB.emprestimos.some(e => e.livroId === id && e.status !== 'devolvido');
+  if(emUso){ toast($('msgLivro'), 'Não é possível excluir: há empréstimo em andamento desta obra.', 'err'); return; }
+  if(!confirm('Confirma a exclusão desta obra do acervo?')) return;
+  DB.livros = DB.livros.filter(l => l.id !== id);
+  salvar(DB);
+  toast($('msgLivro'), 'Obra excluída.', 'ok');
+  renderLivros(); renderDashboard(); preencherSelects();
+}
+
+/* ---------- LEITORES ---------- */
+function renderLeitores(){
+  if(!DB.leitores.length){
+    $('tabelaLeitores').innerHTML = '<div class="vazio">Nenhum leitor cadastrado.</div>';
+    return;
+  }
+  let html = '<table><thead><tr><th>#</th><th>Nome</th><th>Matrícula</th><th>Turma/Cargo</th><th>E-mail</th><th>Ação</th></tr></thead><tbody>';
+  DB.leitores.forEach(l=>{
+    html += `<tr>
+      <td>${l.id}</td>
+      <td><strong>${esc(l.nome)}</strong></td>
+      <td>${esc(l.matricula)}</td>
+      <td>${esc(l.turma||'—')}</td>
+      <td>${esc(l.email||'—')}</td>
+      <td><button class="btn danger" style="padding:5px 10px;font-size:.72rem;" onclick="excluirLeitor(${l.id})">Excluir</button></td>
+    </tr>`;
+  });
+  html += '</tbody></table>';
+  $('tabelaLeitores').innerHTML = html;
+}
+
+$('btnCadLeitor').addEventListener('click', ()=>{
+  const nome = $('leitorNome').value.trim();
+  const mat = $('leitorMatricula').value.trim();
+  if(!nome || !mat){ toast($('msgLeitor'), 'Informe nome e matrícula.', 'err'); return; }
+  if(DB.leitores.some(l => l.matricula === mat)){
+    toast($('msgLeitor'), 'Já existe leitor com esta matrícula.', 'err'); return;
+  }
+  DB.leitores.push({
+    id: DB.seqLeitor++,
+    nome, matricula: mat,
+    turma: $('leitorTurma').value.trim(),
+    email: $('leitorEmail').value.trim()
+  });
+  salvar(DB);
+  ['leitorNome','leitorMatricula','leitorTurma','leitorEmail'].forEach(id=>$(id).value='');
+  toast($('msgLeitor'), 'Leitor cadastrado com sucesso.', 'ok');
+  renderLeitores(); renderDashboard(); preencherSelects();
+});
+
+function excluirLeitor(id){
+  const emUso = DB.emprestimos.some(e => e.leitorId === id && e.status !== 'devolvido');
+  if(emUso){ toast($('msgLeitor'), 'Não é possível excluir: leitor possui empréstimo em andamento.', 'err'); return; }
+  if(!confirm('Confirma a exclusão deste leitor?')) return;
+  DB.leitores = DB.leitores.filter(l => l.id !== id);
+  salvar(DB);
+  toast($('msgLeitor'), 'Leitor excluído.', 'ok');
+  renderLeitores(); renderDashboard(); preencherSelects();
+}
+
+/* ---------- SELECTS DE EMPRÉSTIMO ---------- */
+function preencherSelects(){
+  const selL = $('empLeitor');
+  selL.innerHTML = '<option value="">Selecione o leitor...</option>' +
+    DB.leitores.map(l=>`<option value="${l.id}">${esc(l.nome)} — ${esc(l.matricula)}</option>`).join('');
+
+  const selO = $('empLivro');
+  const disp = DB.livros.filter(l => l.disponivel > 0);
+  selO.innerHTML = '<option value="">Selecione a obra...</option>' +
+    (disp.length
+      ? disp.map(l=>`<option value="${l.id}">${esc(l.titulo)} — ${esc(l.autor)} (${l.disponivel} disp.)</option>`).join('')
+      : '<option value="">Nenhuma obra disponível</option>');
+
+  const d = new Date();
+  d.setDate(d.getDate() + 14);
+  $('empData').value = d.toISOString().slice(0,10);
+}
+
+/* ---------- EMPRÉSTIMOS ---------- */
+function renderEmprestimos(){
+  if(!DB.emprestimos.length){
+    $('tabelaEmprestimos').innerHTML = '<div class="vazio">Nenhum empréstimo registrado.</div>';
+    return;
+  }
+  let html = '<table><thead><tr><th>#</th><th>Leitor</th><th>Obra</th><th>Retirada</th><th>Prevista</th><th>Status</th><th>Ação</th></tr></thead><tbody>';
+  [...DB.emprestimos].reverse().forEach(e=>{
+    const st = statusEmp(e);
+    const l = DB.leitores.find(x=>x.id===e.leitorId);
+    const o = DB.livros.find(x=>x.id===e.livroId);
+    const acao = e.status === 'devolvido'
+      ? '<span style="color:#8092a3;font-size:.75rem;">—</span>'
+      : `<button class="btn" style="padding:5px 10px;font-size:.72rem;background:var(--verde);" onclick="devolver(${e.id})">Devolver</button>`;
+    html += `<tr>
+      <td>${e.id}</td>
+      <td>${esc(l?.nome || 'Leitor removido')}</td>
+      <td>${esc(o?.titulo || 'Obra removida')}</td>
+      <td>${fmt(e.dataRetirada)}</td>
+      <td>${fmt(e.dataPrevista)}</td>
+      <td><span class="tag ${st}">${st}</span></td>
+      <td>${acao}</td>
+    </tr>`;
+  });
+  html += '</tbody></table>';
+  $('tabelaEmprestimos').innerHTML = html;
+}
+
+$('btnEmprestar').addEventListener('click', ()=>{
+  const leitorId = parseInt($('empLeitor').value, 10);
+  const livroId = parseInt($('empLivro').value, 10);
+  const dataPrev = $('empData').value;
+
+  if(!leitorId || !livroId || !dataPrev){
+    toast($('msgEmprestimo'), 'Selecione leitor, obra e data prevista.', 'err'); return;
+  }
+  if(dataPrev < hoje()){
+    toast($('msgEmprestimo'), 'A data prevista não pode ser anterior a hoje.', 'err'); return;
+  }
+  const livro = DB.livros.find(l => l.id === livroId);
+  if(!livro || livro.disponivel < 1){
+    toast($('msgEmprestimo'), 'Obra sem exemplares disponíveis.', 'err'); return;
+  }
+  const jaTem = DB.emprestimos.some(e => e.leitorId === leitorId && e.status !== 'devolvido');
+  if(jaTem){ toast($('msgEmprestimo'), 'Este leitor já possui empréstimo em andamento.', 'err'); return; }
+
+  DB.emprestimos.push({
+    id: DB.seqEmp++,
+    leitorId, livroId,
+    dataRetirada: hoje(),
+    dataPrevista: dataPrev,
+    status: 'ativo'
+  });
+  livro.disponivel -= 1;
+  salvar(DB);
+  toast($('msgEmprestimo'), 'Empréstimo registrado com sucesso.', 'ok');
+  renderEmprestimos(); renderDashboard(); renderLivros(); preencherSelects();
+});
+
+function devolver(id){
+  const e = DB.emprestimos.find(x => x.id === id);
+  if(!e || e.status === 'devolvido') return;
+  const livro = DB.livros.find(l => l.id === e.livroId);
+  if(livro && livro.disponivel < livro.qtd) livro.disponivel += 1;
+  e.status = 'devolvido';
+  e.dataDevolucao = hoje();
+  salvar(DB);
+  renderEmprestimos(); renderDashboard(); renderLivros(); preencherSelects();
+}
+
+/* ---------- RELATÓRIOS ---------- */
+$('btnRelAtrasados').addEventListener('click', ()=>{
+  const atras = DB.emprestimos.filter(e => statusEmp(e) === 'atrasado');
+  if(!atras.length){
+    $('saidaRelatorio').innerHTML = '<div class="vazio">Nenhum empréstimo em atraso.</div>';
+    return;
+  }
+  let html = '<table><thead><tr><th>Leitor</th><th>Matrícula</th><th>Turma</th><th>Obra</th><th>Prevista</th><th>Dias de atraso</th></tr></thead><tbody>';
+  atras.forEach(e=>{
+    const l = DB.leitores.find(x=>x.id===e.leitorId);
+    const o = DB.livros.find(x=>x.id===e.livroId);
+    const dias = Math.floor((new Date(hoje()) - new Date(e.dataPrevista)) / 86400000);
+    html += `<tr>
+      <td>${esc(l?.nome || '—')}</td>
+      <td>${esc(l?.matricula || '—')}</td>
+      <td>${esc(l?.turma || '—')}</td>
+      <td>${esc(o?.titulo || '—')}</td>
+      <td>${fmt(e.dataPrevista)}</td>
+      <td><strong style="color:var(--vermelho)">${dias}</strong></td>
+    </tr>`;
+  });
+  html += '</tbody></table>';
+  $('saidaRelatorio').innerHTML = html;
+});
+
+$('btnRelPopulares').addEventListener('click', ()=>{
+  const cont = {};
+  DB.emprestimos.forEach(e => { cont[e.livroId] = (cont[e.livroId] || 0) + 1; });
+  const ranking = Object.entries(cont)
+    .map(([id, q]) => ({ obra: DB.livros.find(l => l.id === Number(id)), q }))
+    .filter(x => x.obra)
+    .sort((a,b) => b.q - a.q)
+    .slice(0, 10);
+  if(!ranking.length){
+    $('saidaRelatorio').innerHTML = '<div class="vazio">Ainda não há empréstimos registrados.</div>';
+    return;
+  }
+  let html = '<table><thead><tr><th>#</th><th>Obra</th><th>Autor</th><th>Gênero</th><th>Empréstimos</th></tr></thead><tbody>';
+  ranking.forEach((r, i)=>{
+    html += `<tr>
+      <td>${i+1}</td>
+      <td><strong>${esc(r.obra.titulo)}</strong></td>
+      <td>${esc(r.obra.autor)}</td>
+      <td>${esc(r.obra.genero)}</td>
+      <td>${r.q}</td>
+    </tr>`;
+  });
+  html += '</tbody></table>';
+  $('saidaRelatorio').innerHTML = html;
+});
+
+/* ---------- INICIALIZAÇÃO ---------- */
+(function init(){
+  const d = new Date(); d.setDate(d.getDate() + 14);
+  if($('empData')) $('empData').value = d.toISOString().slice(0,10);
+})();
+</script>
+</body>
+</html>
